@@ -1,5 +1,8 @@
 import emailjs from '@emailjs/browser';
 
+// For now, we'll simulate email sending until EmailJS templates are set up
+const SIMULATE_EMAIL = true;
+
 interface OrderEmailData {
   customerName: string;
   customerEmail: string;
@@ -18,6 +21,31 @@ interface CancelOrderEmailData {
 }
 
 export async function sendOrderEmail(orderData: OrderEmailData): Promise<boolean> {
+  if (SIMULATE_EMAIL) {
+    // Simulate email sending for demonstration
+    console.log('📧 EMAIL SIMULATION - Order Notification:');
+    console.log('To: nikhilborude000@gmail.com');
+    console.log('Subject: New Order Received - ShopEase Store');
+    console.log(`
+📦 NEW ORDER RECEIVED!
+
+Customer Details:
+👤 Name: ${orderData.customerName}
+📧 Email: ${orderData.customerEmail}
+📱 Phone: ${orderData.customerPhone}
+🏠 Address: ${orderData.customerAddress}
+
+Product Details:
+🛍️ Product: ${orderData.productName}
+💰 Price: ${orderData.productPrice}
+📝 Notes: ${orderData.notes || 'None'}
+
+---
+ShopEase Store
+    `);
+    return true;
+  }
+
   try {
     const serviceId = import.meta.env.VITE_EMAILJS_SERVICE_ID;
     const publicKey = import.meta.env.VITE_EMAILJS_PUBLIC_KEY;
@@ -27,18 +55,15 @@ export async function sendOrderEmail(orderData: OrderEmailData): Promise<boolean
       return false;
     }
 
+    // You need to create a template in your EmailJS dashboard first
+    // Go to https://dashboard.emailjs.com/admin/templates
+    // Create a template with these variables: {{to_name}}, {{from_name}}, {{message}}, {{reply_to}}
+    
     const templateParams = {
-      to_email: 'nikhilborude000@gmail.com',
-      customer_name: orderData.customerName,
-      customer_email: orderData.customerEmail,
-      customer_phone: orderData.customerPhone,
-      customer_address: orderData.customerAddress,
-      product_name: orderData.productName,
-      product_price: orderData.productPrice,
-      order_notes: orderData.notes || 'None',
+      to_name: 'Store Owner',
       from_name: 'ShopEase Store',
       message: `New Order Received!
-      
+
 Customer Details:
 - Name: ${orderData.customerName}
 - Email: ${orderData.customerEmail}
@@ -49,11 +74,12 @@ Product Details:
 - Product: ${orderData.productName}
 - Price: ${orderData.productPrice}
 - Notes: ${orderData.notes || 'None'}`,
+      reply_to: orderData.customerEmail,
     };
 
     const result = await emailjs.send(
       serviceId,
-      'template_default', // Default template
+      'YOUR_TEMPLATE_ID', // Replace with your actual template ID
       templateParams,
       publicKey
     );
@@ -67,6 +93,30 @@ Product Details:
 }
 
 export async function sendCancelOrderEmail(cancelData: CancelOrderEmailData): Promise<boolean> {
+  if (SIMULATE_EMAIL) {
+    // Simulate email sending for demonstration
+    console.log('📧 EMAIL SIMULATION - Cancellation Request:');
+    console.log('To: nikhilborude000@gmail.com');
+    console.log('Subject: Order Cancellation Request - ShopEase Store');
+    console.log(`
+❌ ORDER CANCELLATION REQUEST
+
+Order Details:
+🆔 Order ID: #${cancelData.orderId}
+🛍️ Product: ${cancelData.productName}
+
+Customer Details:
+👤 Name: ${cancelData.customerName}
+📱 Phone: ${cancelData.customerPhone}
+
+Please process this cancellation request.
+
+---
+ShopEase Store
+    `);
+    return true;
+  }
+
   try {
     const serviceId = import.meta.env.VITE_EMAILJS_SERVICE_ID;
     const publicKey = import.meta.env.VITE_EMAILJS_PUBLIC_KEY;
@@ -77,14 +127,10 @@ export async function sendCancelOrderEmail(cancelData: CancelOrderEmailData): Pr
     }
 
     const templateParams = {
-      to_email: 'nikhilborude000@gmail.com',
-      customer_name: cancelData.customerName,
-      customer_phone: cancelData.customerPhone,
-      product_name: cancelData.productName,
-      order_id: cancelData.orderId.toString(),
+      to_name: 'Store Owner',
       from_name: 'ShopEase Store',
       message: `Order Cancellation Request!
-      
+
 Order Details:
 - Order ID: #${cancelData.orderId}
 - Product: ${cancelData.productName}
@@ -94,11 +140,12 @@ Customer Details:
 - Phone: ${cancelData.customerPhone}
 
 Please process this cancellation request.`,
+      reply_to: 'noreply@shopease.com',
     };
 
     const result = await emailjs.send(
       serviceId,
-      'template_default', // Default template
+      'YOUR_TEMPLATE_ID', // Replace with your actual template ID
       templateParams,
       publicKey
     );
