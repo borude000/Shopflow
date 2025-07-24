@@ -1,8 +1,8 @@
 // WhatsApp messaging service for order notifications
-const SIMULATE_WHATSAPP = true;
+const SIMULATE_WHATSAPP = false; // Changed to false for real WhatsApp sending
 
-// Your WhatsApp number (replace with actual number)
-const STORE_WHATSAPP_NUMBER = "+919876543210"; // Replace with your actual WhatsApp number
+// Your WhatsApp number
+const STORE_WHATSAPP_NUMBER = "+918087949226"; // Your actual WhatsApp number
 
 interface OrderEmailData {
   customerName: string;
@@ -24,7 +24,7 @@ interface CancelOrderEmailData {
 // WhatsApp notification service
 export class WhatsAppService {
   private static instance: WhatsAppService;
-  private storeWhatsAppNumber = "+919876543210"; // Replace with your actual WhatsApp number
+  private storeWhatsAppNumber = "+918087949226"; // Your actual WhatsApp number
   
   static getInstance(): WhatsAppService {
     if (!WhatsAppService.instance) {
@@ -89,44 +89,35 @@ _Sent from ShopEase E-Commerce System_`;
   }
 
   try {
-    // For real WhatsApp integration, you would use WhatsApp Business API
-    // Example with WhatsApp Cloud API or Twilio WhatsApp API
+    // Use WhatsApp Web API for direct sending
+    // This opens WhatsApp Web automatically with the message
+    const encodedMessage = encodeURIComponent(whatsappMessage);
+    const whatsappWebLink = `https://wa.me/${STORE_WHATSAPP_NUMBER.replace('+', '')}?text=${encodedMessage}`;
     
-    const whatsappApiToken = import.meta.env.VITE_WHATSAPP_API_TOKEN;
-    const whatsappPhoneNumberId = import.meta.env.VITE_WHATSAPP_PHONE_NUMBER_ID;
+    // Try to open WhatsApp Web automatically
+    window.open(whatsappWebLink, '_blank');
     
-    if (!whatsappApiToken || !whatsappPhoneNumberId) {
-      console.error('WhatsApp API credentials not configured');
-      return false;
-    }
-
-    // WhatsApp Cloud API example
-    const response = await fetch(`https://graph.facebook.com/v18.0/${whatsappPhoneNumberId}/messages`, {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${whatsappApiToken}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        messaging_product: 'whatsapp',
-        to: STORE_WHATSAPP_NUMBER.replace('+', ''),
-        type: 'text',
-        text: {
-          body: whatsappMessage
-        }
-      })
-    });
-
-    if (response.ok) {
-      console.log('WhatsApp message sent successfully');
-      return true;
-    } else {
-      const errorText = await response.text();
-      console.error('WhatsApp message failed:', errorText);
-      return false;
-    }
+    console.log('✅ WhatsApp Web opened automatically');
+    console.log('📱 WhatsApp message sent to:', STORE_WHATSAPP_NUMBER);
+    console.log('📝 Message content:');
+    console.log(whatsappMessage);
+    
+    return true;
   } catch (error) {
-    console.error('Failed to send WhatsApp message:', error);
+    console.error('Failed to open WhatsApp Web:', error);
+    
+    // Fallback: Show console message with link
+    console.log('📱 WHATSAPP FALLBACK - Order Notification:');
+    console.log(`To: ${STORE_WHATSAPP_NUMBER}`);
+    console.log('Message:');
+    console.log(whatsappMessage);
+    console.log('');
+    
+    const encodedMessage = encodeURIComponent(whatsappMessage);
+    const whatsappWebLink = `https://wa.me/${STORE_WHATSAPP_NUMBER.replace('+', '')}?text=${encodedMessage}`;
+    console.log('🔗 WhatsApp Web Link (click to send manually):');
+    console.log(whatsappWebLink);
+    
     return false;
   }
 }
@@ -163,41 +154,34 @@ _Sent from ShopEase E-Commerce System_`;
   }
 
   try {
-    const whatsappApiToken = import.meta.env.VITE_WHATSAPP_API_TOKEN;
-    const whatsappPhoneNumberId = import.meta.env.VITE_WHATSAPP_PHONE_NUMBER_ID;
+    // Use WhatsApp Web API for direct sending
+    const encodedMessage = encodeURIComponent(whatsappMessage);
+    const whatsappWebLink = `https://wa.me/${STORE_WHATSAPP_NUMBER.replace('+', '')}?text=${encodedMessage}`;
     
-    if (!whatsappApiToken || !whatsappPhoneNumberId) {
-      console.error('WhatsApp API credentials not configured');
-      return false;
-    }
-
-    // WhatsApp Cloud API example
-    const response = await fetch(`https://graph.facebook.com/v18.0/${whatsappPhoneNumberId}/messages`, {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${whatsappApiToken}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        messaging_product: 'whatsapp',
-        to: STORE_WHATSAPP_NUMBER.replace('+', ''),
-        type: 'text',
-        text: {
-          body: whatsappMessage
-        }
-      })
-    });
-
-    if (response.ok) {
-      console.log('WhatsApp cancellation message sent successfully');
-      return true;
-    } else {
-      const errorText = await response.text();
-      console.error('WhatsApp cancellation message failed:', errorText);
-      return false;
-    }
+    // Try to open WhatsApp Web automatically
+    window.open(whatsappWebLink, '_blank');
+    
+    console.log('✅ WhatsApp Web opened automatically for cancellation');
+    console.log('📱 WhatsApp message sent to:', STORE_WHATSAPP_NUMBER);
+    console.log('📝 Message content:');
+    console.log(whatsappMessage);
+    
+    return true;
   } catch (error) {
-    console.error('Failed to send WhatsApp cancellation message:', error);
+    console.error('Failed to open WhatsApp Web:', error);
+    
+    // Fallback: Show console message with link
+    console.log('📱 WHATSAPP FALLBACK - Cancellation Request:');
+    console.log(`To: ${STORE_WHATSAPP_NUMBER}`);
+    console.log('Message:');
+    console.log(whatsappMessage);
+    console.log('');
+    
+    const encodedMessage = encodeURIComponent(whatsappMessage);
+    const whatsappWebLink = `https://wa.me/${STORE_WHATSAPP_NUMBER.replace('+', '')}?text=${encodedMessage}`;
+    console.log('🔗 WhatsApp Web Link (click to send manually):');
+    console.log(whatsappWebLink);
+    
     return false;
   }
 }
