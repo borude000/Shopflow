@@ -17,7 +17,7 @@ import type { Product, InsertOrder } from "@shared/schema";
 
 const checkoutSchema = z.object({
   fullName: z.string().min(2, "Full name must be at least 2 characters"),
-  phone: z.string().min(10, "Phone number must be at least 10 characters"),
+  phone: z.string().regex(/^\d{10}$/, "Phone number must be exactly 10 digits"),
   email: z.string().email("Please enter a valid email address"),
   address: z.string().min(10, "Address must be at least 10 characters"),
   notes: z.string().optional(),
@@ -69,7 +69,7 @@ export default function Checkout() {
         totalAmount: product.price,
       };
 
-      await orderMutation.mutateAsync(orderData);
+      const newOrder = await orderMutation.mutateAsync(orderData);
 
       // Send email notification
       const emailSent = await sendOrderEmail({
@@ -95,9 +95,9 @@ export default function Checkout() {
         });
       }
 
-      // Reset form and redirect
+      // Reset form and redirect to order details
       form.reset();
-      setLocation("/");
+      setLocation(`/order/${newOrder.id}`);
     } catch (error) {
       toast({
         title: "Order failed",
