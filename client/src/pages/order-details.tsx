@@ -11,7 +11,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { CheckCircle, XCircle, ArrowLeft, Package } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { sendCancelOrderEmail } from "@/lib/email-service";
+import { sendCancelOrderEmail, WhatsAppService } from "@/lib/email-service";
+import WhatsAppButton from "@/components/whatsapp-button";
 import type { Order, Product } from "@shared/schema";
 
 const cancelSchema = z.object({
@@ -178,23 +179,31 @@ export default function OrderDetails() {
         </Card>
 
         {/* Action Buttons */}
-        <div className="flex flex-col sm:flex-row gap-4">
-          <Button 
-            onClick={() => setLocation("/")}
+        <div className="space-y-4">
+          <div className="flex flex-col sm:flex-row gap-4">
+            <Button 
+              onClick={() => setLocation("/")}
+              variant="outline"
+              className="flex-1"
+            >
+              <ArrowLeft className="mr-2 h-4 w-4" />
+              Continue Shopping
+            </Button>
+            <Button 
+              onClick={() => setShowCancelDialog(true)}
+              variant="destructive"
+              className="flex-1"
+            >
+              <XCircle className="mr-2 h-4 w-4" />
+              Cancel Order
+            </Button>
+          </div>
+          
+          <WhatsAppButton
+            message={`Hi! I have a question about my order #${order.id} for ${product.name}. Can you please help me?`}
             variant="outline"
-            className="flex-1"
-          >
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            Continue Shopping
-          </Button>
-          <Button 
-            onClick={() => setShowCancelDialog(true)}
-            variant="destructive"
-            className="flex-1"
-          >
-            <XCircle className="mr-2 h-4 w-4" />
-            Cancel Order
-          </Button>
+            className="w-full bg-green-50 border-green-200 text-green-700 hover:bg-green-100"
+          />
         </div>
 
         {/* Cancel Order Dialog */}

@@ -11,7 +11,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Badge } from "@/components/ui/badge";
 import { Package, Calendar, XCircle, User, Phone, MapPin, Mail } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { sendCancelOrderEmail } from "@/lib/email-service";
+import { sendCancelOrderEmail, WhatsAppService } from "@/lib/email-service";
+import WhatsAppButton from "@/components/whatsapp-button";
 import type { Order, Product } from "@shared/schema";
 
 const cancelSchema = z.object({
@@ -200,17 +201,28 @@ export default function Orders() {
                     </div>
                   </div>
 
-                  {/* Action Button */}
-                  <div className="mt-6 pt-4 border-t">
-                    <Button 
-                      onClick={() => openCancelDialog(order)}
-                      variant="destructive"
-                      size="sm"
-                      className="w-full sm:w-auto"
-                    >
-                      <XCircle className="mr-2 h-4 w-4" />
-                      Cancel Order
-                    </Button>
+                  {/* Action Buttons */}
+                  <div className="mt-6 pt-4 border-t space-y-3">
+                    <div className="flex flex-col sm:flex-row gap-3">
+                      <Button 
+                        onClick={() => openCancelDialog(order)}
+                        variant="destructive"
+                        size="sm"
+                        className="flex-1 sm:flex-none"
+                      >
+                        <XCircle className="mr-2 h-4 w-4" />
+                        Cancel Order
+                      </Button>
+                      
+                      {product && (
+                        <WhatsAppButton
+                          message={`Hi! I have a question about order #${order.id} for ${product.name}. Can you please help me?`}
+                          variant="outline"
+                          size="sm"
+                          className="flex-1 sm:flex-none bg-green-50 border-green-200 text-green-700 hover:bg-green-100"
+                        />
+                      )}
+                    </div>
                   </div>
                 </CardContent>
               </Card>

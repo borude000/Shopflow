@@ -1,7 +1,8 @@
-import emailjs from '@emailjs/browser';
+// WhatsApp messaging service for order notifications
+const SIMULATE_WHATSAPP = true;
 
-// For now, we'll simulate email sending until EmailJS templates are set up
-const SIMULATE_EMAIL = true;
+// Your WhatsApp number (replace with actual number)
+const STORE_WHATSAPP_NUMBER = "+919876543210"; // Replace with your actual WhatsApp number
 
 interface OrderEmailData {
   customerName: string;
@@ -20,140 +21,187 @@ interface CancelOrderEmailData {
   orderId: number;
 }
 
-export async function sendOrderEmail(orderData: OrderEmailData): Promise<boolean> {
-  if (SIMULATE_EMAIL) {
-    // Simulate email sending for demonstration
-    console.log('📧 EMAIL SIMULATION - Order Notification:');
-    console.log('To: nikhilborude000@gmail.com');
-    console.log('Subject: New Order Received - ShopEase Store');
-    console.log(`
-📦 NEW ORDER RECEIVED!
-
-Customer Details:
-👤 Name: ${orderData.customerName}
-📧 Email: ${orderData.customerEmail}
-📱 Phone: ${orderData.customerPhone}
-🏠 Address: ${orderData.customerAddress}
-
-Product Details:
-🛍️ Product: ${orderData.productName}
-💰 Price: ${orderData.productPrice}
-📝 Notes: ${orderData.notes || 'None'}
-
----
-ShopEase Store
-    `);
-    return true;
+// WhatsApp notification service
+export class WhatsAppService {
+  private static instance: WhatsAppService;
+  private storeWhatsAppNumber = "+919876543210"; // Replace with your actual WhatsApp number
+  
+  static getInstance(): WhatsAppService {
+    if (!WhatsAppService.instance) {
+      WhatsAppService.instance = new WhatsAppService();
+    }
+    return WhatsAppService.instance;
   }
 
-  try {
-    const serviceId = import.meta.env.VITE_EMAILJS_SERVICE_ID;
-    const publicKey = import.meta.env.VITE_EMAILJS_PUBLIC_KEY;
+  setStoreWhatsAppNumber(number: string) {
+    this.storeWhatsAppNumber = number;
+  }
 
-    if (!serviceId || !publicKey) {
-      console.error('EmailJS credentials not configured');
-      return false;
-    }
+  createWhatsAppLink(message: string): string {
+    const encodedMessage = encodeURIComponent(message);
+    return `https://wa.me/${this.storeWhatsAppNumber.replace('+', '')}?text=${encodedMessage}`;
+  }
 
-    // You need to create a template in your EmailJS dashboard first
-    // Go to https://dashboard.emailjs.com/admin/templates
-    // Create a template with these variables: {{to_name}}, {{from_name}}, {{message}}, {{reply_to}}
+  openWhatsAppLink(message: string) {
+    const link = this.createWhatsAppLink(message);
+    window.open(link, '_blank');
+  }
+}
+
+export async function sendOrderWhatsApp(orderData: OrderEmailData): Promise<boolean> {
+  const whatsappMessage = `🛍️ *NEW ORDER RECEIVED - ShopEase Store*
+
+📦 *Order Details:*
+• Product: ${orderData.productName}
+• Price: $${orderData.productPrice}
+• Notes: ${orderData.notes || 'None'}
+
+👤 *Customer Information:*
+• Name: ${orderData.customerName}
+• Email: ${orderData.customerEmail}
+• Phone: ${orderData.customerPhone}
+• Address: ${orderData.customerAddress}
+
+Please process this order promptly!
+
+_Sent from ShopEase E-Commerce System_`;
+
+  if (SIMULATE_WHATSAPP) {
+    // Simulate WhatsApp message for demonstration
+    console.log('📱 WHATSAPP SIMULATION - Order Notification:');
+    console.log(`To: ${STORE_WHATSAPP_NUMBER}`);
+    console.log('Message:');
+    console.log(whatsappMessage);
+    console.log('');
+    console.log('💡 To send real WhatsApp messages, you can:');
+    console.log('1. Use WhatsApp Business API');
+    console.log('2. Use services like Twilio, MessageBird, or WhatsApp Cloud API');
+    console.log('3. Use WhatsApp Web link for manual sending');
+    console.log('');
     
-    const templateParams = {
-      to_name: 'Store Owner',
-      from_name: 'ShopEase Store',
-      message: `New Order Received!
-
-Customer Details:
-- Name: ${orderData.customerName}
-- Email: ${orderData.customerEmail}
-- Phone: ${orderData.customerPhone}
-- Address: ${orderData.customerAddress}
-
-Product Details:
-- Product: ${orderData.productName}
-- Price: ${orderData.productPrice}
-- Notes: ${orderData.notes || 'None'}`,
-      reply_to: orderData.customerEmail,
-    };
-
-    const result = await emailjs.send(
-      serviceId,
-      'YOUR_TEMPLATE_ID', // Replace with your actual template ID
-      templateParams,
-      publicKey
-    );
-
-    console.log('Email sent successfully:', result);
-    return true;
-  } catch (error) {
-    console.error('Failed to send email:', error);
-    return false;
-  }
-}
-
-export async function sendCancelOrderEmail(cancelData: CancelOrderEmailData): Promise<boolean> {
-  if (SIMULATE_EMAIL) {
-    // Simulate email sending for demonstration
-    console.log('📧 EMAIL SIMULATION - Cancellation Request:');
-    console.log('To: nikhilborude000@gmail.com');
-    console.log('Subject: Order Cancellation Request - ShopEase Store');
-    console.log(`
-❌ ORDER CANCELLATION REQUEST
-
-Order Details:
-🆔 Order ID: #${cancelData.orderId}
-🛍️ Product: ${cancelData.productName}
-
-Customer Details:
-👤 Name: ${cancelData.customerName}
-📱 Phone: ${cancelData.customerPhone}
-
-Please process this cancellation request.
-
----
-ShopEase Store
-    `);
+    // Create WhatsApp Web link for easy manual sending
+    const encodedMessage = encodeURIComponent(whatsappMessage);
+    const whatsappWebLink = `https://wa.me/${STORE_WHATSAPP_NUMBER.replace('+', '')}?text=${encodedMessage}`;
+    console.log('🔗 WhatsApp Web Link (click to send manually):');
+    console.log(whatsappWebLink);
+    
     return true;
   }
 
   try {
-    const serviceId = import.meta.env.VITE_EMAILJS_SERVICE_ID;
-    const publicKey = import.meta.env.VITE_EMAILJS_PUBLIC_KEY;
-
-    if (!serviceId || !publicKey) {
-      console.error('EmailJS credentials not configured');
+    // For real WhatsApp integration, you would use WhatsApp Business API
+    // Example with WhatsApp Cloud API or Twilio WhatsApp API
+    
+    const whatsappApiToken = import.meta.env.VITE_WHATSAPP_API_TOKEN;
+    const whatsappPhoneNumberId = import.meta.env.VITE_WHATSAPP_PHONE_NUMBER_ID;
+    
+    if (!whatsappApiToken || !whatsappPhoneNumberId) {
+      console.error('WhatsApp API credentials not configured');
       return false;
     }
 
-    const templateParams = {
-      to_name: 'Store Owner',
-      from_name: 'ShopEase Store',
-      message: `Order Cancellation Request!
+    // WhatsApp Cloud API example
+    const response = await fetch(`https://graph.facebook.com/v18.0/${whatsappPhoneNumberId}/messages`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${whatsappApiToken}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        messaging_product: 'whatsapp',
+        to: STORE_WHATSAPP_NUMBER.replace('+', ''),
+        type: 'text',
+        text: {
+          body: whatsappMessage
+        }
+      })
+    });
 
-Order Details:
-- Order ID: #${cancelData.orderId}
-- Product: ${cancelData.productName}
-
-Customer Details:
-- Name: ${cancelData.customerName}
-- Phone: ${cancelData.customerPhone}
-
-Please process this cancellation request.`,
-      reply_to: 'noreply@shopease.com',
-    };
-
-    const result = await emailjs.send(
-      serviceId,
-      'YOUR_TEMPLATE_ID', // Replace with your actual template ID
-      templateParams,
-      publicKey
-    );
-
-    console.log('Cancellation email sent successfully:', result);
-    return true;
+    if (response.ok) {
+      console.log('WhatsApp message sent successfully');
+      return true;
+    } else {
+      const errorText = await response.text();
+      console.error('WhatsApp message failed:', errorText);
+      return false;
+    }
   } catch (error) {
-    console.error('Failed to send cancellation email:', error);
+    console.error('Failed to send WhatsApp message:', error);
     return false;
   }
 }
+
+export async function sendCancelOrderWhatsApp(cancelData: CancelOrderEmailData): Promise<boolean> {
+  const whatsappMessage = `❌ *ORDER CANCELLATION REQUEST - ShopEase Store*
+
+🆔 *Order ID:* #${cancelData.orderId}
+🛍️ *Product:* ${cancelData.productName}
+
+👤 *Customer Details:*
+• Name: ${cancelData.customerName}
+• Phone: ${cancelData.customerPhone}
+
+⚠️ *Action Required:* Please process this cancellation request immediately.
+
+_Sent from ShopEase E-Commerce System_`;
+
+  if (SIMULATE_WHATSAPP) {
+    // Simulate WhatsApp message for demonstration
+    console.log('📱 WHATSAPP SIMULATION - Cancellation Request:');
+    console.log(`To: ${STORE_WHATSAPP_NUMBER}`);
+    console.log('Message:');
+    console.log(whatsappMessage);
+    console.log('');
+    
+    // Create WhatsApp Web link for easy manual sending
+    const encodedMessage = encodeURIComponent(whatsappMessage);
+    const whatsappWebLink = `https://wa.me/${STORE_WHATSAPP_NUMBER.replace('+', '')}?text=${encodedMessage}`;
+    console.log('🔗 WhatsApp Web Link (click to send manually):');
+    console.log(whatsappWebLink);
+    
+    return true;
+  }
+
+  try {
+    const whatsappApiToken = import.meta.env.VITE_WHATSAPP_API_TOKEN;
+    const whatsappPhoneNumberId = import.meta.env.VITE_WHATSAPP_PHONE_NUMBER_ID;
+    
+    if (!whatsappApiToken || !whatsappPhoneNumberId) {
+      console.error('WhatsApp API credentials not configured');
+      return false;
+    }
+
+    // WhatsApp Cloud API example
+    const response = await fetch(`https://graph.facebook.com/v18.0/${whatsappPhoneNumberId}/messages`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${whatsappApiToken}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        messaging_product: 'whatsapp',
+        to: STORE_WHATSAPP_NUMBER.replace('+', ''),
+        type: 'text',
+        text: {
+          body: whatsappMessage
+        }
+      })
+    });
+
+    if (response.ok) {
+      console.log('WhatsApp cancellation message sent successfully');
+      return true;
+    } else {
+      const errorText = await response.text();
+      console.error('WhatsApp cancellation message failed:', errorText);
+      return false;
+    }
+  } catch (error) {
+    console.error('Failed to send WhatsApp cancellation message:', error);
+    return false;
+  }
+}
+
+// Keep the old email functions for backward compatibility, but rename them
+export const sendOrderEmail = sendOrderWhatsApp;
+export const sendCancelOrderEmail = sendCancelOrderWhatsApp;
