@@ -8,6 +8,7 @@ import Home from "@/pages/home";
 import ProductDetails from "@/pages/product-details";
 import Checkout from "@/pages/checkout";
 import OrderDetails from "@/pages/order-details";
+import Orders from "@/pages/orders";
 import Admin from "@/pages/admin";
 import NotFound from "@/pages/not-found";
 
@@ -18,6 +19,7 @@ function Router() {
       <Route path="/product/:id" component={ProductDetails} />
       <Route path="/checkout/:id" component={Checkout} />
       <Route path="/order/:id" component={OrderDetails} />
+      <Route path="/orders" component={Orders} />
       <Route path="/admin" component={Admin} />
       <Route component={NotFound} />
     </Switch>
